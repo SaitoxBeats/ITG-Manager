@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ITGManager</title>
+    <style>
+        * {
+            color: white;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            font-weight: bold;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.719);
+        }
+        #bg-box{
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: -1;
+        }
+        #bg{
+            width: 100%;
+            height: 100%;
+            background-image: url('../img/banner.png');
+            background-size: cover;
+            filter: blur(10px);
+        }
+        #content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(31, 0, 20, 0.568);
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            padding: 20px;
+        }
+        #songpreview {
+            width: 50%;
+            min-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        #banner-container {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+            background-color: rgba(49, 49, 49, 0.5);
+        }
+        #songpreview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        #songinfo {
+            padding: 20px;
+            background-color: rgba(49, 49, 49, 0.5);
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .info-row {
+            display: flex;
+        }
+        .label {
+            font-size: large;
+            color: rgb(138, 138, 138);
+            min-width: 120px;
+        }
+        .label-content {
+            font-size: large;
+            flex-grow: 1;
+        }
+        #difficulties {
+            background-color: rgba(49, 49, 49, 0.3);
+            padding: 10px;
+            margin-top: auto;
+        }
+        #diff-list {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .diff-item {
+            padding: 5px 10px;
+            background-color: rgba(60, 65, 69, 0.7);
+        }
+        #music-player {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 15px;
+            background-color: rgba(49, 49, 49, 0.3);
+            padding: 10px;
+        }
+        #audio-player {
+            width: 100%;
+        }
+        #player-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .player-btn {
+            padding: 8px 12px;
+            background-color: rgb(60, 65, 69);
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .player-btn:hover {
+            background-color: rgb(97, 103, 107);
+        }
+        #song-list-container {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        #toolbar {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background-color: rgba(49, 49, 49, 0.5);
+        }
+        .toolbar-btn {
+            padding: 8px 30px;
+            background-color: rgb(48, 52, 54);
+            border: none;;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .toolbar-btn:hover {
+            background-color: rgb(97, 103, 107);
+        }
+        #songPacklist {
+            flex-grow: 1;
+            background-color: rgb(31, 45, 45, 0.5);
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow-y: auto; 
+        }
+        /* Pasta (pack) */
+        .pack-item {
+            background-color: rgb(60, 65, 69);
+            position: relative;
+        }
+        .pack-header {
+            display: flex;
+            width: 100%;
+            background-color: rgb(60, 65, 69);
+        }
+        .pack-btn {
+            flex-grow: 1;
+            background: none;
+            border: none;
+            padding: 10px;
+            font-size: x-large;
+            text-align: left;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+        }
+        .pack-btn:hover {
+            background-color: rgb(97, 103, 107);
+        }
+        .import-pack-btn {
+            width: 40px;
+            background: rgb(80, 88, 92);
+            border: none;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+        }
+        .import-pack-btn:hover {
+            background-color: rgb(100, 110, 120);
+        }
+        /* Lista de músicas dentro da pasta */
+        .songs {
+            list-style: none;
+            display: none;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+        .songs.show {
+            display: block;
+        }
+        .song-item {
+            font-size: large;
+            padding: 10px 15px;
+            margin-bottom: 2px;
+            text-align: left;
+            background-color: rgb(49, 49, 49);
+            cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .song-item:hover {
+            background-color: rgb(70, 78, 82);
+        }
+        .selected {
+            background-color: rgb(80, 88, 92) !important;
+        }
+        /* Drop zone */
+        .drop-zone {
+            display: none;
+            padding: 15px;
+            border: 2px dashed rgb(100, 100, 100);
+            background-color: rgba(40, 40, 40, 0.5);
+            text-align: center;
+        }
+        .pack-item.dragging .drop-zone {
+            display: block;
+        }
+        /* Loading overlay */
+        #loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Mensagem de notificação */
+        #notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(49, 49, 49, 0.9);
+            padding: 15px 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+        }
+        .no-songs {
+            padding: 20px;
+            text-align: center;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div id="bg-box">
+        <div id="bg"></div>
+    </div>
+    <div id="content">
+        <div id="songpreview">
+            <div id="banner-container">
+                <img src="../img/banner.png" alt="Banner da música" id="song-banner">
+            </div>
+            <div id="songinfo">
+                <div class="info-row">
+                    <p class="label">TITLE</p>
+                    <p class="label-content" id="song-title">Select a song</p>
+                </div>
+                <div class="info-row">
+                    <p class="label">ARTIST</p>
+                    <p class="label-content" id="song-artist">-</p>
+                </div>
+                <div class="info-row">
+                    <p class="label">CREDITS</p>
+                    <p class="label-content" id="song-credit">-</p>
+                </div>
+                <div class="info-row">
+                    <p class="label">BPM</p>
+                    <p class="label-content" id="song-bpm">-</p>
+                </div>
+                <div id="difficulties">
+                    <p class="label">DIFFICULTIES</p>
+                    <div id="diff-list"></div>
+                </div>
+                <div id="music-player">
+                    <p class="label">Audio Player</p>
+                    <div id="audio-player"></div>
+                    <div id="player-controls">
+                        <button class="player-btn">Play</button>
+                        <button class="player-btn">Pause</button>
+                        <button class="player-btn">Stop</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="song-list-container">
+            <div id="toolbar">
+                <button id="import-btn" class="toolbar-btn">Import Pack</button>
+                <button id="settings-btn" class="toolbar-btn">Settings</button>
+                <button id="about-btn" class="toolbar-btn">About</button>
+                <button id="refresh-btn" class="toolbar-btn">Refresh</button>
+            </div>
+            <ul id="songPacklist">
+                <!-- Content will be filled dynamically -->
+                <li class="no-songs">Loading song packs...</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p id="loading-text">Processing...</p>
+    </div>
+
+    <div id="notification">Notification message</div>
+
+    <script src="../js/renderer.js"></script>
+</body>
+</html>

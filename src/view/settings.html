@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Settings - ITGManager</title>
+    <style>
+        * {
+            color: white;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: rgba(31, 0, 20, 0.9);
+            padding: 20px;
+            height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(49, 49, 49, 0.7);
+            padding: 30px;
+        }
+        
+        h1 {
+            margin-bottom: 30px;
+            text-align: left;
+            color: #e1e1e1;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        
+        .input-group {
+            display: flex;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            background-color: rgba(20, 20, 20, 0.7);
+            border: 1px solid #555;
+            color: white;
+        }
+        
+        button {
+            padding: 10px 15px;
+            background-color: #444;
+            border: 1px solid #666;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background-color: #555;
+        }
+        
+        .btn-browse {
+            border-left: none;
+        }
+        
+        .btn-save {
+            background-color: rgb(60, 65, 69);
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+        }
+        
+        .btn-save:hover {
+            background-color: rgb(97, 103, 107);
+        }
+        
+        .btn-back {
+            display: block;
+            margin-top: 20px;
+            background-color: transparent;
+            border: 1px solid #555;
+        }
+        
+        .message {
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .success {
+            background-color: rgba(40, 167, 69, 0.3);
+            border: 1px solid #28a745;
+        }
+        
+        .error {
+            background-color: rgba(220, 53, 69, 0.3);
+            border: 1px solid #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Settings</h1>
+        
+        <div id="messageBox" class="message"></div>
+        
+        <div class="form-group">
+            <label for="songsDirectory">Songs Directory:</label>
+            <div class="input-group">
+                <input type="text" id="songsDirectory" placeholder="Path to songs folder">
+                <button id="browseButton" class="btn-browse">Browse</button>
+            </div>
+        </div>
+        
+        <button id="saveButton" class="btn-save">Save Settings</button>
+        <button id="backButton" class="btn-back">Back</button>
+    </div>
+    
+    <script>
+        // Get page elements
+        const songsDirectoryInput = document.getElementById('songsDirectory');
+        const browseButton = document.getElementById('browseButton');
+        const saveButton = document.getElementById('saveButton');
+        const backButton = document.getElementById('backButton');
+        const messageBox = document.getElementById('messageBox');
+        
+        // Load settings
+        window.addEventListener('DOMContentLoaded', async () => {
+            const settings = await window.electron.getSettings();
+            songsDirectoryInput.value = settings.songsDirectory || '';
+        });
+        
+        // Browse directory button
+        browseButton.addEventListener('click', async () => {
+            try {
+                const result = await window.electron.showDirectoryDialog();
+                if (!result.canceled && result.directoryPath) {
+                    songsDirectoryInput.value = result.directoryPath;
+                }
+            } catch (error) {
+                showMessage('Error selecting directory', 'error');
+            }
+        });
+        
+        // Save settings
+        saveButton.addEventListener('click', async () => {
+            const songsDirectory = songsDirectoryInput.value.trim();
+            
+            if (!songsDirectory) {
+                showMessage('Error: Songs directory cannot be empty.', 'error');
+                return;
+            }
+            
+            const result = await window.electron.saveSettings({ songsDirectory });
+            
+            if (result.success) {
+                showMessage('Settings saved successfully!', 'success');
+            } else {
+                showMessage(`Error saving settings: ${result.error}`, 'error');
+            }
+        });
+        
+        // Back to main page
+        backButton.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+        
+        // Show message
+        function showMessage(text, type) {
+            messageBox.textContent = text;
+            messageBox.className = `message ${type}`;
+            messageBox.style.display = 'block';
+            
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
