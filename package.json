@@ -17,7 +17,9 @@
   "dependencies": {
     "adm-zip": "^0.5.10",
     "electron-packager": "^17.1.2",
-    "electron-store": "^8.1.0"
+    "electron-store": "^8.1.0",
+    "fs-extra": "^11.3.0",
+    "trash": "^9.0.0"
   },
   "build": {
     "appId": "com.SaitoxBeats.ITGManager",

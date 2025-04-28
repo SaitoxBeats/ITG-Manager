@@ -219,6 +219,27 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .song-title {
+            flex-grow: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ff4444;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 5px;
+            margin-left: 10px;
+        }
+        .delete-btn:hover {
+            color: #ff6666;
         }
         .song-item:hover {
             background-color: rgb(70, 78, 82);

@@ -121,9 +121,45 @@ async function loadPacks() {
                         songs.forEach(song => {
                             const songItem = document.createElement('li');
                             songItem.className = 'song-item';
-                            songItem.textContent = song.title;
+                            songItem.innerHTML = `
+                                <span class="song-title">${song.title}</span>
+                                <button class="delete-btn" title="Delete song">×</button>
+                            `;
                             songItem.setAttribute('data-path', song.path);
-                            songItem.addEventListener('click', () => loadSongInfo(song.path, songItem));
+                            songItem.addEventListener('click', (e) => {
+                                // Only trigger song info load if not clicking the delete button
+                                if (!e.target.classList.contains('delete-btn')) {
+                                    loadSongInfo(song.path, songItem);
+                                }
+                            });
+                            
+                            // Add delete button click handler
+                            const deleteBtn = songItem.querySelector('.delete-btn');
+                            deleteBtn.addEventListener('click', async (e) => {
+                                e.stopPropagation(); // Prevent triggering the song item click
+                                if (confirm(`Are you sure you want to move to trash "${song.title}"?`)) {
+                                    try {
+                                        showLoading('Moving to trash...');
+                                        const result = await window.electron.deleteSong(song.path);
+                                        if (result.success) {
+                                            showNotification('Song moved to trash successfully', 3000);
+                                            // Remove the song item from the list
+                                            songItem.remove();
+                                            // Clear song info if the deleted song was selected
+                                            if (_currentSong === song.path) {
+                                                clearSongInfo();
+                                            }
+                                        } else {
+                                            showNotification(`Error deleting song: ${result.error}`, 3000);
+                                        }
+                                    } catch (error) {
+                                        showNotification('Error deleting song', 3000);
+                                    } finally {
+                                        hideLoading();
+                                    }
+                                }
+                            });
+                            
                             songsList.appendChild(songItem);
                         });
                     }

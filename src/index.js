@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const AdmZip = require('adm-zip');
 const Store = require('electron-store');
+const { exec } = require('child_process');
+const trash = require('trash');
 
 // Store configuration for settings
 const _store = new Store();
@@ -529,6 +531,33 @@ ipcMain.handle('show-directory-dialog', async (event) => {
     }
     
     return { canceled: false, directoryPath: result.filePaths[0] };
+});
+
+// Handler to delete a song
+ipcMain.handle('delete-song', async (_, songPath) => {
+    try {
+        // Check if the path exists and is a directory
+        if (!fs.existsSync(songPath) || !fs.statSync(songPath).isDirectory()) {
+            return { success: false, error: 'Invalid song path' };
+        }
+
+        // Use PowerShell to move the directory to trash
+        return new Promise((resolve) => {
+            const command = `powershell -Command "$shell = New-Object -ComObject Shell.Application; $folder = $shell.Namespace('${path.dirname(songPath)}'); $item = $folder.ParseName('${path.basename(songPath)}'); $item.InvokeVerb('delete')"`;
+            
+            exec(command, (error) => {
+                if (error) {
+                    console.error('Error moving to trash:', error);
+                    resolve({ success: false, error: error.message });
+                } else {
+                    resolve({ success: true });
+                }
+            });
+        });
+    } catch (error) {
+        console.error('Error deleting song:', error);
+        return { success: false, error: error.message };
+    }
 });
 
 app.on('browser-window-created', (_, window) => {

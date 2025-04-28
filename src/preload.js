@@ -10,5 +10,6 @@ contextBridge.exposeInMainWorld('electron', {
     showImportDialog: () => ipcRenderer.invoke('show-import-dialog'),
     showZipDialog: () => ipcRenderer.invoke('show-zip-dialog'),
     showFolderDialog: () => ipcRenderer.invoke('show-folder-dialog'),
-    showDirectoryDialog: () => ipcRenderer.invoke('show-directory-dialog')
+    showDirectoryDialog: () => ipcRenderer.invoke('show-directory-dialog'),
+    deleteSong: (songPath) => ipcRenderer.invoke('delete-song', songPath)
 });
